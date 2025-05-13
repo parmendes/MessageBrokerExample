@@ -1,0 +1,12 @@
+asyncapi: 2.6.0
+info:
+  title: Message Broker Example (RabbitMQ)
+  version: 1.0.0
+  description: This is an example of a message broker using RabbitMQ.
+channels:
+  my_queue:
+    publish:
+      message:
+        payload:
+          type: string
+        contentType: text/plain

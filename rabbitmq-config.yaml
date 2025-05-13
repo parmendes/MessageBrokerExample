@@ -1,0 +1,8 @@
+rabbitmq:
+  hostName: "localhost"
+  userName: "guest"
+  password: "guest"
+  port: 5672
+  exchangeName: "my_exchange"
+  queueName: "my_queue"
+  routingKey: "my_routing_key"
