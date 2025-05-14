@@ -20,10 +20,10 @@ public static class MessageBrokerConfigLoader
         var deserializer = new DeserializerBuilder()
             .WithNamingConvention(CamelCaseNamingConvention.Instance)
             .Build();
-
+    
         var yaml = File.ReadAllText(filePath);
         var root = deserializer.Deserialize<Dictionary<string, RabbitMqConfig>>(yaml);
-
+    
         if (root.TryGetValue("rabbitmq", out var rabbitMqConfig))
         {
             return rabbitMqConfig;
