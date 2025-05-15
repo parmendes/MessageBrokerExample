@@ -1,0 +1,6 @@
+@Neuroglia_KafkaExample_HostAddress = http://localhost:5047
+
+GET {{Neuroglia_KafkaExample_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
