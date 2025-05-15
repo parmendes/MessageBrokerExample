@@ -22,6 +22,12 @@ namespace RabbitMQAsyncAPI.Configurations
             services.AddAsyncApiGeneration(builder => 
                 builder.UseDefaultV3DocumentConfiguration(asyncApi  =>
                 {
+                    asyncApi.WithId("default")
+                        .WithTitle("Weather API")
+                        .WithVersion("1.0.0")
+                        .WithDescription("Weather API with RabbitMQ and AsyncAPI");
+
+                    Console.WriteLine("[AsyncAPI] Builder lambda executed");
                     asyncApi.WithSpecVersion("3.0.0");
 
                     asyncApi.WithTitle("Weather API")
@@ -42,7 +48,9 @@ namespace RabbitMQAsyncAPI.Configurations
                         .WithMessage("UserSignedUpMessage", message => message
                             .WithTitle("User signed up")
                             .WithDescription("Emits an event when a user signs up")
-                            .WithContentType("application/json")));
+                            .WithContentType("application/json")
+                        )
+                    );
                 })
             );
 

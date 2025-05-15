@@ -28,22 +28,32 @@ app.UseRouting();
 // Map Async API
 app.MapAsyncApiDocuments();
 
-// Save AsyncAPI document as a file
-// var builderService = app.Services.GetRequiredService<IAsyncApiDocumentBuilder>();
-// var asyncApiDocument = builderService.Build();
-
+// Generate AsyncAPI document
+// This is a blocking call, so it should be done after the app is built
+// and before the app is run.
+// This is a simple example, in a real-world application, you might want to
+// generate the document in a background service or a separate process.
+// This is just to demonstrate the generation of the AsyncAPI document
 var provider = app.Services.GetRequiredService<IAsyncApiDocumentProvider>();
 
 var asyncApiDocument = provider
-    .GetDocumentAsync("default")     // <-- must pass the "default" group name
+    .GetDocumentAsync("default")
     .GetAwaiter()
     .GetResult();
 
+Console.WriteLine("[AsyncAPI] Document generated: "+ asyncApiDocument?.Title);
+
+// Serialize the AsyncAPI document to YAML
+// using YamlDotNet.Serialization;
 var serializer = new SerializerBuilder()
     .WithNamingConvention(CamelCaseNamingConvention.Instance)
     .Build();
+
 var yamlContent = serializer.Serialize(asyncApiDocument);
-File.WriteAllText("/asyncapi.yaml", yamlContent);
+
+Directory.CreateDirectory("AsyncAPI");
+File.WriteAllText("AsyncAPI/asyncapi.yaml", yamlContent);
+
 
 app.UseStaticFiles();
 
