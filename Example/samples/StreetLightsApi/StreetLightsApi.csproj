@@ -13,6 +13,7 @@
 	  <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.14" Condition="'$(TargetFramework)' == 'net8.0'" />
 	  <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="9.0.3" Condition="'$(TargetFramework)' == 'net9.0'" />
 	  <PackageReference Include="MQTTnet" Version="4.3.7.1207" />
+	  <PackageReference Include="RabbitMQ.Client" Version="7.1.2" />
   </ItemGroup>
 
   <ItemGroup>
