@@ -20,10 +20,13 @@ namespace StreetLightsApi.Services;
     "1.0.0",
     Description = "The Light Measurement Producer allows you to get remotely notified about light measurements captured by sensors.",
     LicenseName = "Apache 2.0",
-    LicenseUrl = "https://www.apache.org/licenses/LICENSE-2.0")]
+    LicenseUrl = "https://www.apache.org/licenses/LICENSE-2.0"
+)]
 [Neuroglia.AsyncApi.v2.Tag("light", "A tag for light-related operations")]
 [Neuroglia.AsyncApi.v2.Tag("measurement", "A tag for measurement-related operations")]
-[Neuroglia.AsyncApi.v3.Channel("light.measured", Servers = new[] { "mosquitto" })]
+[Neuroglia.AsyncApi.v3.Tag(Name = "light", Description = "A tag for light-related operations")]
+[Neuroglia.AsyncApi.v3.Tag(Name = "measurement", Description = "A tag for measurement-related operations")]
+[Neuroglia.AsyncApi.v3.Channel("light.measured", Description = "This channel is used to exchange messages about lightning measurements.")]
 public class LightMeasurementProducer
 {
     private readonly IChannel _channel;
@@ -56,8 +59,8 @@ public class LightMeasurementProducer
         "#/channels/light.measured",
         Description = "Publishes a light measured event to RabbitMQ."
     )]
-    [Neuroglia.AsyncApi.v3.Tag(Reference = "#/components/tags/measurement")]
-    [Neuroglia.AsyncApi.v3.Tag(Reference = "#/components/tags/light")]
+    [Neuroglia.AsyncApi.v3.Tag(Name = "measurement")]
+    [Neuroglia.AsyncApi.v3.Tag(Name = "light")]
     public async Task PublishLightMeasuredAsync(LightMeasuredEvent evt)
     {
         var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(evt));
