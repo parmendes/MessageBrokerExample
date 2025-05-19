@@ -26,10 +26,21 @@ namespace StreetLightsApi.Services;
 [Neuroglia.AsyncApi.v2.Tag("measurement", "A tag for measurement-related operations")]
 [Neuroglia.AsyncApi.v3.Tag(Name = "light", Description = "A tag for light-related operations")]
 [Neuroglia.AsyncApi.v3.Tag(Name = "measurement", Description = "A tag for measurement-related operations")]
-[Neuroglia.AsyncApi.v3.Channel("light.measured", Description = "This channel is used to exchange messages about lightning measurements.")]
+
+// The AsyncAPI channel for light measurements
+[Neuroglia.AsyncApi.v3.Channel(
+    "light.measured", // The name of the channel for light measurements
+    Address = "#/channels/light.measured", // The address of the channel in the AsyncAPI document
+    Servers = ["#/servers/mosquitto"], // The server(s) where the channel is available
+    Description = "This channel is used to exchange messages about lightning measurements.")]
 public class LightMeasurementProducer
 {
     private readonly IChannel _channel;
+
+    /// <summary>
+    /// The name of the channel for light measurements, explicitly referencing the channel class.
+    /// </summary>
+    public static readonly string Channel = LightMeasuredChannel.ChannelName;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="LightMeasurementProducer"/> class.
@@ -46,7 +57,7 @@ public class LightMeasurementProducer
     /// Publishes the specified <see cref="LightMeasuredEvent"/>
     /// </summary>
     /// <param name="evt">The <see cref="LightMeasuredEvent"/> to publish</param>
-    [Neuroglia.AsyncApi.v2.Channel("light.measured")]
+    [Neuroglia.AsyncApi.v2.Channel(LightMeasuredChannel.ChannelName)]
     [Neuroglia.AsyncApi.v2.PublishOperation(
         typeof(LightMeasuredEvent),
         OperationId = "PublishLightMeasured",
