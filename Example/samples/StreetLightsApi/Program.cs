@@ -18,10 +18,33 @@ var builder = WebApplication.CreateBuilder(args);
 // Register core services
 builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
 builder.Services.AddAsyncApiUI();
+builder.Services.AddHttpClient();
+builder.Services.AddTransient<Neuroglia.Data.Schemas.Json.IJsonSchemaResolver, Neuroglia.Data.Schemas.Json.JsonSchemaResolver>();
 
 // Register AsyncAPI document generation using service markup (code-first)
 builder.Services.AddAsyncApiGeneration(options =>
     options.WithMarkupType<LightMeasurementProducer>()
+    .UseDefaultV2DocumentConfiguration(asyncApi =>
+    {
+        asyncApi
+            .WithTermsOfService(new Uri("https://www.websitepolicies.com/blog/sample-terms-service-template"))
+            .WithServer("mosquitto", server => server
+                .WithUrl(new Uri("amqp://localhost:5672"))
+                .WithProtocol(Neuroglia.AsyncApi.AsyncApiProtocol.Amqp)
+                .WithDescription("RabbitMQ server for light measurement events")
+            )
+            ;
+    })
+    .UseDefaultV3DocumentConfiguration(asyncApi =>
+        {
+            asyncApi
+                .WithTermsOfService(new Uri("https://www.websitepolicies.com/blog/sample-terms-service-template"))
+                .WithServer("mosquitto", server => server
+                    .WithHost("amqp://localhost:5672")
+                    .WithProtocol(AsyncApiProtocol.Amqp)
+                    .WithDescription("RabbitMQ server for light measurement events"))
+                ;
+        })
 );
 
 var app = builder.Build();
