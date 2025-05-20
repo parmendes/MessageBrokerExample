@@ -11,6 +11,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using Neuroglia.AsyncApi.Bindings;
+using Neuroglia.AsyncApi.Bindings.Amqp;
+using RabbitMQ.Client;
 using StreetLightsApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -29,6 +32,15 @@ builder.Services.AddAsyncApiGeneration(options =>
     options.WithMarkupType<LightMeasurementApi>()
         .UseDefaultV2DocumentConfiguration(asyncApi =>
         {
+            var amqpBinding = new AmqpOperationBindingDefinition
+            {
+                Cc = new Neuroglia.EquatableList<string>(new[] { "light.measured" }),
+                DeliveryMode = AmqpDeliveryMode.Persistent,
+                Priority = 0,
+            };
+            var amqpBindings = new OperationBindingDefinitionCollection();
+            amqpBindings.Add(amqpBinding);
+
             asyncApi
                 .WithTermsOfService(new Uri("https://www.websitepolicies.com/blog/sample-terms-service-template"))
                 .WithServer("mosquitto", server => server
@@ -36,18 +48,23 @@ builder.Services.AddAsyncApiGeneration(options =>
                     .WithProtocol(Neuroglia.AsyncApi.AsyncApiProtocol.Amqp)
                     .WithDescription("RabbitMQ server for light measurement events")
                 )
+                .WithOperationBindingComponent("amqpLightMeasured", amqpBindings)
                 ;
         })
         .UseDefaultV3DocumentConfiguration(asyncApi =>
         {
+            var amqpOperationBindings = new OperationBindingDefinitionCollection();
+            amqpOperationBindings.Add(new AmqpOperationBindingDefinition());
+
             asyncApi
                 .WithTermsOfService(new Uri("https://www.websitepolicies.com/blog/sample-terms-service-template"))
                 .WithServer("mosquitto", server => server
                     .WithHost("amqp://localhost:5672")
                     .WithProtocol(AsyncApiProtocol.Amqp)
                     .WithDescription("RabbitMQ server for light measurement events"))
-                ;
+                .WithOperationBindingsComponent("amqp", amqpOperationBindings);
         })
+        
 );
 
 var app = builder.Build();

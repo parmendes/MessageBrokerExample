@@ -1,4 +1,4 @@
-using Neuroglia.AsyncApi.v2;
+using Neuroglia.AsyncApi.Bindings.Mqtt;
 using Neuroglia.AsyncApi.v3;
 
 namespace StreetLightsApi.Services;
@@ -64,7 +64,8 @@ public class LightMeasurementApi
         "publishLightMeasured",
         V3OperationAction.Send,
         "#/channels/light.measured",
-        Description = "Publishes a light measured event to RabbitMQ."
+        Description = "Publishes a light measured event to RabbitMQ.",
+        Bindings = "#/components/operationBindings/amqp"
     )]
     [Neuroglia.AsyncApi.v2.Channel(LightMeasuredChannel.ChannelName)]
     [Neuroglia.AsyncApi.v3.Tag(Name = "measurement")]

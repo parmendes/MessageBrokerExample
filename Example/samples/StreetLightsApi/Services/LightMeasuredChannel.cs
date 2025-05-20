@@ -6,8 +6,8 @@ namespace StreetLightsApi.Services;
 /// <summary>
 /// Defines the AsyncAPI channel for light measurements.
 /// </summary>
-[Neuroglia.AsyncApi.v2.Channel("light.measured")]
-[Neuroglia.AsyncApi.v3.Channel("light.measured", Description = "This channel is used to exchange messages about lightning measurements.")]
+// [Neuroglia.AsyncApi.v2.Channel("light.measured")]
+// [Neuroglia.AsyncApi.v3.Channel("light.measured", Description = "This channel is used to exchange messages about lightning measurements.")]
 public class LightMeasuredChannel 
 {
     /// <summary>

@@ -11,6 +11,8 @@ namespace StreetLightsApi.Services;
 public class LightMeasurementProducer
 {
     private readonly IChannel _channel;
+    private readonly string _exchangeName = "light.measured.exchange";
+    private readonly string _routingKey = "light.measured";
 
     /// <summary>
     /// The name of the channel for light measurements, explicitly referencing the channel class.
@@ -18,14 +20,16 @@ public class LightMeasurementProducer
     public static readonly string Channel = LightMeasuredChannel.ChannelName;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="LightMeasurementProducer"/> class.
-    /// Creates a connection to RabbitMQ.
+    /// Initializes a new instance of the <see cref="LightMeasurementProducer"/> class and ensures the RabbitMQ exchange exists.
     /// </summary>
     public LightMeasurementProducer()
     {
         var factory = new ConnectionFactory() { HostName = "localhost" };
         var connection = factory.CreateConnectionAsync().GetAwaiter().GetResult();
-        _channel = connection.CreateChannelAsync().GetAwaiter().GetResult();
+        var channel = connection.CreateChannelAsync().GetAwaiter().GetResult();
+        // Ensure the exchange exists (idempotent)
+        channel.ExchangeDeclareAsync(exchange: _exchangeName, type: "direct", durable: true);
+        _channel = channel;
     }
 
     /// <summary>
