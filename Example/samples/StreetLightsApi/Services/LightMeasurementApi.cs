@@ -26,7 +26,9 @@ namespace StreetLightsApi.Services;
     "light.measured", // The name of the channel for light measurements
     Address = "#/channels/light.measured", // The address of the channel in the AsyncAPI document
     Servers = ["#/servers/mosquitto"], // The server(s) where the channel is available
-    Description = "This channel is used to exchange messages about lightning measurements.")]
+    Description = "This channel is used to exchange messages about lightning measurements.",
+    Bindings = "#/components/channelBindings/amqp" // The binding for the channel
+    )]
 
 [Neuroglia.AsyncApi.v2.Tag("light", "A tag for light-related operations")]
 [Neuroglia.AsyncApi.v2.Tag("measurement", "A tag for measurement-related operations")]
