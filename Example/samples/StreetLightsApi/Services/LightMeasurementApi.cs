@@ -1,4 +1,3 @@
-using Neuroglia.AsyncApi.Bindings.Mqtt;
 using Neuroglia.AsyncApi.v3;
 
 namespace StreetLightsApi.Services;
@@ -29,7 +28,8 @@ namespace StreetLightsApi.Services;
     Description = "This channel is used to exchange messages about lightning measurements.",
     Bindings = "#/components/channelBindings/amqp" // The binding for the channel
     )]
-
+[HttpServerBinding("http")]
+[AmqpV1ChannelBinding("amqp")]
 [Neuroglia.AsyncApi.v2.Tag("light", "A tag for light-related operations")]
 [Neuroglia.AsyncApi.v2.Tag("measurement", "A tag for measurement-related operations")]
 [Neuroglia.AsyncApi.v3.Tag(Name = "light", Description = "A tag for light-related operations")]
@@ -90,7 +90,8 @@ public class LightMeasurementApi
         "consumeLightMeasured",
         V3OperationAction.Receive,
         "#/channels/light.measured",
-        Description = "Consumes a light measured event from RabbitMQ."
+        Description = "Consumes a light measured event from RabbitMQ.",
+        Bindings = "#/components/operationBindings/amqp"
     )]
     [Neuroglia.AsyncApi.v2.Channel(LightMeasuredChannel.ChannelName)]
     [Neuroglia.AsyncApi.v3.Tag(Name = "measurement")]

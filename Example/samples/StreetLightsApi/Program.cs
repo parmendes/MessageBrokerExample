@@ -50,8 +50,8 @@ builder.Services.AddAsyncApiGeneration(options =>
                     .WithProtocol(Neuroglia.AsyncApi.AsyncApiProtocol.Amqp)
                     .WithDescription("RabbitMQ server for light measurement events")
                 )
-                .WithChannelBindingComponent("amqpLightMeasured", amqpChannelBindings)
-                .WithOperationBindingComponent("amqpLightMeasured", amqpBindings)
+                .WithChannelBindingComponent("amqp", amqpChannelBindings)
+                .WithOperationBindingComponent("amqp", amqpBindings)
                 ;
         })
         .UseDefaultV3DocumentConfiguration(asyncApi =>
