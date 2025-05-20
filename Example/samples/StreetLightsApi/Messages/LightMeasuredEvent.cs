@@ -1,4 +1,5 @@
-﻿// Copyright © 2021-Present Neuroglia SRL. All rights reserved.
+﻿using System.Numerics;
+// Copyright © 2021-Present Neuroglia SRL. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"),
 // you may not use this file except in compliance with the License.
@@ -12,14 +13,17 @@
 // limitations under the License.
 
 using Neuroglia.AsyncApi.v2;
+using Neuroglia.AsyncApi.v3;
 
 namespace StreetLightsApi.Messages;
 
 /// <summary>
 /// Represents an event fired whenever light has been measured
 /// </summary>
-[Tag("light", "A tag for light-related messages"), Tag("measurement", "A tag for measurement-related messages")]
-[Message(Name = "LightMeasured", Description = "A message used to measure light")]
+[Neuroglia.AsyncApi.v2.Tag("light", "A tag for light-related messages"), Neuroglia.AsyncApi.v2.Tag("measurement", "A tag for measurement-related messages")]
+[Neuroglia.AsyncApi.v2.Message(Name = "LightMeasured", Description = "A message used to measure light")]
+[Neuroglia.AsyncApi.v3.Tag(Name = "light", Description = "A tag for light-related messages"), Neuroglia.AsyncApi.v3.Tag(Name = "measurement", Description = "A tag for measurement-related messages")]
+[Neuroglia.AsyncApi.v3.Message(Name = "LightMeasured", Description = "A message used to measure light")]
 public class LightMeasuredEvent
 {
 

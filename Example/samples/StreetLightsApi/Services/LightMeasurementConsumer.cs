@@ -6,10 +6,8 @@ namespace StreetLightsApi.Services;
 /// <summary>
 /// Represents the consumer of light measurement events.
 /// </summary>
-[Neuroglia.AsyncApi.v2.Tag("light", "A tag for light-related operations")]
-[Neuroglia.AsyncApi.v2.Tag("measurement", "A tag for measurement-related operations")]
-[Neuroglia.AsyncApi.v3.Tag(Name = "light", Description = "A tag for light-related operations")]
-[Neuroglia.AsyncApi.v3.Tag(Name = "measurement", Description = "A tag for measurement-related operations")]
+
+// The AsyncAPI channel for light measurements
 public class LightMeasurementConsumer
 {
     /// <summary>
@@ -21,20 +19,6 @@ public class LightMeasurementConsumer
     /// Handles a received <see cref="LightMeasuredEvent"/>
     /// </summary>
     /// <param name="evt">The <see cref="LightMeasuredEvent"/> received</param>
-    [Neuroglia.AsyncApi.v2.SubscribeOperation(
-        typeof(LightMeasuredEvent),
-        OperationId = "ConsumeLightMeasured",
-        Summary = "Consumes a light measured event from RabbitMQ.",
-        Description = "Receives notifications about environmental lighting conditions for a particular streetlight."
-    )]
-    [Neuroglia.AsyncApi.v3.Operation(
-        "consumeLightMeasured",
-        V3OperationAction.Receive,
-        "#/channels/light.measured",
-        Description = "Consumes a light measured event from RabbitMQ."
-    )]
-    [Neuroglia.AsyncApi.v3.Tag(Name = "measurement")]
-    [Neuroglia.AsyncApi.v3.Tag(Name = "light")]
     public Task ConsumeLightMeasuredAsync(LightMeasuredEvent evt)
     {
         // Handle the event (implementation omitted)

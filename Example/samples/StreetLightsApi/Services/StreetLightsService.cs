@@ -91,7 +91,11 @@ public class StreetLightsService(ILogger<StreetLightsService> logger, IJsonSeria
     /// </summary>
     /// <param name="e">The <see cref="LightMeasuredEvent"/> to handle</param>
     /// <returns>A new awaitable <see cref="Task"/></returns>
-    [Neuroglia.AsyncApi.v2.Channel("light/measured"), SubscribeOperation(OperationId = "OnLightMeasured", Summary = "Inform about environmental lighting conditions for a particular streetlight"), Neuroglia.AsyncApi.v2.Tag("light", "A tag for light-related operations"), Neuroglia.AsyncApi.v2.Tag("measurement", "A tag for measurement-related operations")]
+    [Neuroglia.AsyncApi.v2.Channel("light/measured"),
+    SubscribeOperation(OperationId = "OnLightMeasured",
+    Summary = "Inform about environmental lighting conditions for a particular streetlight"),
+    Neuroglia.AsyncApi.v2.Tag("light", "A tag for light-related operations"),
+    Neuroglia.AsyncApi.v2.Tag("measurement", "A tag for measurement-related operations")]
     [Neuroglia.AsyncApi.v3.Operation("receiveLightMeasurement", V3OperationAction.Receive, "#/channels/lightingMeasuredMQTT"), Neuroglia.AsyncApi.v3.Tag(Reference = "#/components/tags/measurement")]
     protected Task OnLightMeasured(LightMeasuredEvent e)
     {
