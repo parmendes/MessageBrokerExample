@@ -29,7 +29,6 @@ namespace StreetLightsApi.Services;
     Bindings = "#/components/channelBindings/amqp" // The binding for the channel
     )]
 [HttpServerBinding("http")] // The HTTP server binding for the channel
-[AmqpV1ChannelBinding("amqp")] // The AMQP server binding for the channel
 [Neuroglia.AsyncApi.v2.Tag("light", "A tag for light-related operations")] // A tag for light-related operations
 [Neuroglia.AsyncApi.v2.Tag("measurement", "A tag for measurement-related operations")] // A tag for measurement-related operations
 [Neuroglia.AsyncApi.v3.Tag(Name = "light", Description = "A tag for light-related operations")] // A tag for light-related operations
