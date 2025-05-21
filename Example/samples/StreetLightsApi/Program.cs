@@ -1,3 +1,4 @@
+using System;
 // Copyright © 2021-Present Neuroglia SRL. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"),
@@ -49,27 +50,72 @@ builder.Services.AddAsyncApiGeneration(options =>
                     .WithUrl(new Uri("amqp://localhost:5672"))
                     .WithProtocol(Neuroglia.AsyncApi.AsyncApiProtocol.Amqp)
                     .WithDescription("RabbitMQ server for light measurement events")
+                    .WithSecurityRequirement("oauth2")
                 )
                 .WithChannelBindingComponent("amqp", amqpChannelBindings)
                 .WithOperationBindingComponent("amqp", amqpBindings)
-                ;
+                .WithSecurityScheme("oauth2", scheme => scheme
+                    .WithType(SecuritySchemeType.OAuth2)
+                    .WithDescription("OAuth2 authentication for the API")
+                    .WithAuthorizationScheme("Bearer")
+                    .WithOAuthFlows(oauth => oauth
+                        .WithClientCredentialsFlow(flow => flow
+                            .WithAuthorizationUrl(new Uri("https://your-auth-server.com/token"))
+                            .WithScope("api:read", "Read access to API")
+                            .WithScope("api:write", "Write access to API")
+                        )
+                    )
+                );
         })
         .UseDefaultV3DocumentConfiguration(asyncApi =>
         {
             var amqpChannelBindings = new ChannelBindingDefinitionCollection();
-            amqpChannelBindings.Add(new AmqpChannelBindingDefinition());
+            amqpChannelBindings.Add(new AmqpChannelBindingDefinition
+            {
+                Queue = new AmqpQueueDefinition
+                {
+                    Name = LightMeasurementInfrastructure.QueueName,
+                    Durable = LightMeasurementInfrastructure.QueueDurable,
+                    AutoDelete = LightMeasurementInfrastructure.QueueAutoDelete,
+                },
+                Exchange = new AmqpExchangeDefinition
+                {
+                    Name = LightMeasurementInfrastructure.ExchangeName,
+                    Type = AmqpExchangeType.Direct,
+                    Durable = LightMeasurementInfrastructure.ExchangeDurable,
+                    AutoDelete = LightMeasurementInfrastructure.ExchangeAutoDelete,
+                },
+                BindingVersion = "0.3.0"
+            });
 
             var amqpOperationBindings = new OperationBindingDefinitionCollection();
-            amqpOperationBindings.Add(new AmqpOperationBindingDefinition());
+            amqpOperationBindings.Add(new AmqpOperationBindingDefinition
+            {
+                BindingVersion = "0.3.0"
+            });
 
             asyncApi
                 .WithTermsOfService(new Uri("https://www.websitepolicies.com/blog/sample-terms-service-template"))
                 .WithServer("mosquitto", server => server
                     .WithHost("amqp://localhost:5672")
                     .WithProtocol(AsyncApiProtocol.Amqp)
-                    .WithDescription("RabbitMQ server for light measurement events"))
+                    .WithDescription("RabbitMQ server for light measurement events")
+                    .WithSecurityRequirement(security => security.Use("#/components/securitySchemes/oauth2"))
+                )
                 .WithChannelBindingsComponent("amqp", amqpChannelBindings)
-                .WithOperationBindingsComponent("amqp", amqpOperationBindings);
+                .WithOperationBindingsComponent("amqp", amqpOperationBindings)
+                .WithSecuritySchemeComponent("oauth2", scheme => scheme
+                    .WithType(SecuritySchemeType.OAuth2)
+                    .WithDescription("OAuth2 authentication for the API")
+                    .WithAuthorizationScheme("Bearer")
+                    .WithOAuthFlows(oauth => oauth
+                        .WithClientCredentialsFlow(flow => flow
+                            .WithAuthorizationUrl(new Uri("https://your-auth-server.com/token"))
+                            .WithScope("api:read", "Read access to API")
+                            .WithScope("api:write", "Write access to API")
+                        )
+                    )
+                );
         })
         
 );

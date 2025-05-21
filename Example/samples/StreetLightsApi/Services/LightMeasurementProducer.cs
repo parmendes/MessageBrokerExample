@@ -1,7 +1,5 @@
 using RabbitMQ.Client;
 using System.Text.Json;
-using Neuroglia.AsyncApi.v2;
-using Neuroglia.AsyncApi.v3;
 
 namespace StreetLightsApi.Services;
 
@@ -10,6 +8,31 @@ namespace StreetLightsApi.Services;
 /// </summary>
 public class LightMeasurementProducer
 {
+    /// <summary>
+    /// The name of the RabbitMQ exchange used for light measurements.
+    /// </summary>
+    public const string ExchangeName = "light.measured.exchange";
+    /// <summary>
+    /// The type of the RabbitMQ exchange used for light measurements.
+    /// </summary>
+    public const string ExchangeType = "direct";
+    /// <summary>
+    /// The name of the RabbitMQ queue used for light measurements.
+    /// </summary>
+    public const string QueueName = "light.measured.queue";
+    /// <summary>
+    /// Whether the exchange is durable.
+    /// </summary>
+    public const bool ExchangeDurable = true;
+    /// <summary>
+    /// Whether the queue is durable.
+    /// </summary>
+    public const bool QueueDurable = true;
+    /// <summary>
+    /// Whether the queue is auto-delete.
+    /// </summary>
+    public const bool QueueAutoDelete = false;
+
     private readonly IChannel _channel;
     private readonly string _exchangeName = "light.measured.exchange";
     private readonly string _routingKey = "light.measured";
@@ -28,7 +51,7 @@ public class LightMeasurementProducer
         var connection = factory.CreateConnectionAsync().GetAwaiter().GetResult();
         var channel = connection.CreateChannelAsync().GetAwaiter().GetResult();
         // Ensure the exchange exists (idempotent)
-        channel.ExchangeDeclareAsync(exchange: _exchangeName, type: "direct", durable: true);
+        channel.ExchangeDeclareAsync(exchange: LightMeasurementInfrastructure.ExchangeName, type: LightMeasurementInfrastructure.ExchangeType, durable: LightMeasurementInfrastructure.ExchangeDurable);
         _channel = channel;
     }
 

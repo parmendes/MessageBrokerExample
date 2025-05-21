@@ -1,5 +1,3 @@
-using Neuroglia.AsyncApi.v2;
-using Neuroglia.AsyncApi.v3;
 using RabbitMQ.Client;
 
 namespace StreetLightsApi.Services;
@@ -24,9 +22,9 @@ public class LightMeasurementConsumer
         var connection = factory.CreateConnectionAsync().GetAwaiter().GetResult();
         var channel = connection.CreateChannelAsync().GetAwaiter().GetResult();
 
-        channel.ExchangeDeclareAsync(exchangeName, ExchangeType.Direct);
-        channel.QueueDeclareAsync(queueName, false, false, false, null);
-        channel.QueueBindAsync(queueName, exchangeName, routingKey, null);
+        channel.ExchangeDeclareAsync(LightMeasurementInfrastructure.ExchangeName, LightMeasurementInfrastructure.ExchangeType);
+        channel.QueueDeclareAsync(LightMeasurementInfrastructure.QueueName, LightMeasurementInfrastructure.QueueDurable, false, LightMeasurementInfrastructure.QueueAutoDelete, null);
+        channel.QueueBindAsync(LightMeasurementInfrastructure.QueueName, LightMeasurementInfrastructure.ExchangeName, LightMeasurementInfrastructure.RoutingKey, null);
     }
 
     /// <summary>
