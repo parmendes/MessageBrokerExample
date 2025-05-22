@@ -1,3 +1,7 @@
+// This file defines the LightMeasurementProducer class, which is responsible for publishing light measurement events to RabbitMQ.
+// It ensures the required exchange exists and provides a method to publish events. The class is designed for modularity and integration
+// with the rest of the light measurement system, and is used by the LightMeasurementApi as the event producer.
+
 using RabbitMQ.Client;
 using System.Text.Json;
 
@@ -33,8 +37,11 @@ public class LightMeasurementProducer
     /// </summary>
     public const bool QueueAutoDelete = false;
 
+    // The RabbitMQ channel used for publishing messages
     private readonly IChannel _channel;
+    // The exchange name for publishing
     private readonly string _exchangeName = "light.measured.exchange";
+    // The routing key for publishing
     private readonly string _routingKey = "light.measured";
 
     /// <summary>
@@ -47,8 +54,11 @@ public class LightMeasurementProducer
     /// </summary>
     public LightMeasurementProducer()
     {
+        // Create a connection factory for RabbitMQ
         var factory = new ConnectionFactory() { HostName = "localhost" };
+        // Establish a connection to RabbitMQ
         var connection = factory.CreateConnectionAsync().GetAwaiter().GetResult();
+        // Create a channel for communication
         var channel = connection.CreateChannelAsync().GetAwaiter().GetResult();
         // Ensure the exchange exists (idempotent)
         channel.ExchangeDeclareAsync(exchange: LightMeasurementInfrastructure.ExchangeName, type: LightMeasurementInfrastructure.ExchangeType, durable: LightMeasurementInfrastructure.ExchangeDurable);
@@ -61,7 +71,9 @@ public class LightMeasurementProducer
     /// <param name="evt">The <see cref="LightMeasuredEvent"/> to publish</param>
     public async Task PublishLightMeasuredAsync(LightMeasuredEvent evt)
     {
+        // Serialize the event to JSON and encode as bytes
         var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(evt));
+        // Publish the message to RabbitMQ (implementation commented out)
         // await _channel.BasicPublishAsync<IBasicProperties>(
         //     exchange: string.Empty,
         //     routingKey: "light.measured",

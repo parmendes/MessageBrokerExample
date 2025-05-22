@@ -1,7 +1,12 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<!--
+    This project file defines the build configuration for the StreetLightsApi ASP.NET Core sample application.
+    It targets .NET 8.0, enables nullable reference types, and generates XML documentation.
+    The project references required NuGet packages for Razor runtime compilation, MQTT, RabbitMQ, and the Neuroglia.AsyncApi UI.
+    It is designed to support code-first AsyncAPI documentation and event-driven messaging for a light measurement system.
+-->
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <!-- <TargetFrameworks>net8.0;net9.0</TargetFrameworks> -->
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>

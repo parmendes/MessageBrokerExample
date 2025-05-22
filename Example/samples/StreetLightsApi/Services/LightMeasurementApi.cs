@@ -1,3 +1,7 @@
+// This file defines the LightMeasurementApi class, which acts as the unified API surface for light measurement events.
+// It exposes methods for publishing and consuming light measurement events, and is decorated with Neuroglia.AsyncApi attributes
+// to enable code-first AsyncAPI documentation generation. The class delegates actual message handling to the producer and consumer classes.
+
 using Neuroglia.AsyncApi.v3;
 
 namespace StreetLightsApi.Services;
@@ -21,6 +25,7 @@ namespace StreetLightsApi.Services;
     LicenseUrl = "https://www.apache.org/licenses/LICENSE-2.0"
 )]
 
+// AsyncAPI channel and tag attributes for documentation
 [Neuroglia.AsyncApi.v3.Channel(
     "light.measured", // The name of the channel for light measurements
     Address = "#/channels/light.measured", // The address of the channel in the AsyncAPI document
@@ -35,7 +40,9 @@ namespace StreetLightsApi.Services;
 [Neuroglia.AsyncApi.v3.Tag(Name = "measurement", Description = "A tag for measurement-related operations")] // A tag for measurement-related operations
 public class LightMeasurementApi
 {
+    // Reference to the producer responsible for publishing events
     private readonly LightMeasurementProducer _producer;
+    // Reference to the consumer responsible for consuming events
     private readonly LightMeasurementConsumer _consumer;
 
     /// <summary>
@@ -67,12 +74,13 @@ public class LightMeasurementApi
         "#/channels/light.measured",
         Description = "Publishes a light measured event to RabbitMQ.",
         Bindings = "#/components/operationBindings/amqp"
+        // Security is set via the builder API in Program.cs
     )]
     [Neuroglia.AsyncApi.v2.Channel(LightMeasuredChannel.ChannelName)]
     [Neuroglia.AsyncApi.v3.Tag(Name = "measurement")]
     [Neuroglia.AsyncApi.v3.Tag(Name = "light")]
     public async Task PublishLightMeasuredAsync(LightMeasuredEvent evt)
-        => await _producer.PublishLightMeasuredAsync(evt);
+        => await _producer.PublishLightMeasuredAsync(evt); // Delegate to producer
 
     /// <summary>
     /// Consumes a light measured event from RabbitMQ.
@@ -91,10 +99,12 @@ public class LightMeasurementApi
         "#/channels/light.measured",
         Description = "Consumes a light measured event from RabbitMQ.",
         Bindings = "#/components/operationBindings/amqp"
+        // Security is set via the builder API in Program.cs
     )]
     [Neuroglia.AsyncApi.v2.Channel(LightMeasuredChannel.ChannelName)]
     [Neuroglia.AsyncApi.v3.Tag(Name = "measurement")]
     [Neuroglia.AsyncApi.v3.Tag(Name = "light")]
     public Task ConsumeLightMeasuredAsync(LightMeasuredEvent evt)
-        => _consumer.ConsumeLightMeasuredAsync(evt);
+        => _consumer.ConsumeLightMeasuredAsync(evt); // Delegate to consumer
 }
+

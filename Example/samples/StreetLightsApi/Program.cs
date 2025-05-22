@@ -1,4 +1,8 @@
-using System;
+// This file configures and starts the ASP.NET Core application for the StreetLightsApi sample.
+// It registers all required services, sets up AsyncAPI document generation (code-first) for both AsyncAPI v2 and v3,
+// configures security schemes, channel and operation bindings, and exposes the AsyncAPI UI and API endpoints.
+// The configuration ensures modularity, proper RabbitMQ infrastructure documentation, and best practices for maintainability.
+
 // Copyright © 2021-Present Neuroglia SRL. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"),
@@ -18,76 +22,85 @@ using StreetLightsApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Register core services
-builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
-builder.Services.AddAsyncApiUI();
-builder.Services.AddHttpClient();
-builder.Services.AddTransient<Neuroglia.Data.Schemas.Json.IJsonSchemaResolver, Neuroglia.Data.Schemas.Json.JsonSchemaResolver>();
-builder.Services.AddTransient<LightMeasurementProducer>();
-builder.Services.AddTransient<LightMeasurementConsumer>();
-builder.Services.AddTransient<LightMeasurementApi>();
+// Register core services for Razor Pages (with runtime compilation), AsyncAPI UI, HTTP client, and DI for API components
+builder.Services.AddRazorPages().AddRazorRuntimeCompilation(); // Enables Razor Pages and hot reload for development
+builder.Services.AddAsyncApiUI(); // Adds the AsyncAPI UI middleware for interactive documentation
+builder.Services.AddHttpClient(); // Registers the default HTTP client for DI
+builder.Services.AddTransient<Neuroglia.Data.Schemas.Json.IJsonSchemaResolver, Neuroglia.Data.Schemas.Json.JsonSchemaResolver>(); // Registers JSON schema resolver for AsyncAPI
+builder.Services.AddTransient<LightMeasurementProducer>(); // Registers the producer service for DI
+builder.Services.AddTransient<LightMeasurementConsumer>(); // Registers the consumer service for DI
+builder.Services.AddTransient<LightMeasurementApi>(); // Registers the root API class for DI
 
 // Register AsyncAPI document generation using service markup (code-first)
 builder.Services.AddAsyncApiGeneration(options =>
-    options.WithMarkupType<LightMeasurementApi>()
+    options.WithMarkupType<LightMeasurementApi>() // Use LightMeasurementApi as the root for code-first AsyncAPI generation
+        // Configure AsyncAPI v2 document
         .UseDefaultV2DocumentConfiguration(asyncApi =>
         {
+            // Define AMQP channel bindings (for documentation only)
             var amqpChannelBindings = new ChannelBindingDefinitionCollection();
             amqpChannelBindings.Add(new AmqpChannelBindingDefinition());
 
+            // Define AMQP operation bindings (for documentation only)
             var amqpBinding = new AmqpOperationBindingDefinition
             {
-                Cc = new Neuroglia.EquatableList<string>(new[] { "light.measured" }),
-                DeliveryMode = AmqpDeliveryMode.Persistent,
-                Priority = 0,
+                Cc = new Neuroglia.EquatableList<string>(new[] { "light.measured" }), // Routing key for the operation
+                DeliveryMode = AmqpDeliveryMode.Persistent, // Persistent delivery mode for reliability
+                Priority = 0, // Default priority
             };
             var amqpBindings = new OperationBindingDefinitionCollection();
             amqpBindings.Add(amqpBinding);
 
             asyncApi
+                // Set terms of service and server configuration
                 .WithTermsOfService(new Uri("https://www.websitepolicies.com/blog/sample-terms-service-template"))
                 .WithServer("mosquitto", server => server
-                    .WithUrl(new Uri("amqp://localhost:5672"))
-                    .WithProtocol(Neuroglia.AsyncApi.AsyncApiProtocol.Amqp)
+                    .WithUrl(new Uri("amqp://localhost:5672")) // RabbitMQ server URL
+                    .WithProtocol(Neuroglia.AsyncApi.AsyncApiProtocol.Amqp) // Use AMQP protocol
                     .WithDescription("RabbitMQ server for light measurement events")
-                    .WithSecurityRequirement("oauth2")
+                    .WithSecurityRequirement("oauth2") // Require OAuth2 security at the server level
                 )
+                // Register channel and operation bindings for AMQP
                 .WithChannelBindingComponent("amqp", amqpChannelBindings)
                 .WithOperationBindingComponent("amqp", amqpBindings)
+                // Register OAuth2 security scheme in components (for documentation and UI)
                 .WithSecurityScheme("oauth2", scheme => scheme
                     .WithType(SecuritySchemeType.OAuth2)
                     .WithDescription("OAuth2 authentication for the API")
                     .WithAuthorizationScheme("Bearer")
                     .WithOAuthFlows(oauth => oauth
                         .WithClientCredentialsFlow(flow => flow
-                            .WithAuthorizationUrl(new Uri("https://your-auth-server.com/token"))
-                            .WithScope("api:read", "Read access to API")
-                            .WithScope("api:write", "Write access to API")
+                            .WithAuthorizationUrl(new Uri("https://your-auth-server.com/token")) // Auth server URL
+                            .WithScope("api:read", "Read access to API") // Read scope
+                            .WithScope("api:write", "Write access to API") // Write scope
                         )
                     )
                 );
         })
+        // Configure AsyncAPI v3 document
         .UseDefaultV3DocumentConfiguration(asyncApi =>
         {
+            // Define AMQP channel bindings with queue and exchange details (for documentation only)
             var amqpChannelBindings = new ChannelBindingDefinitionCollection();
             amqpChannelBindings.Add(new AmqpChannelBindingDefinition
             {
                 Queue = new AmqpQueueDefinition
                 {
-                    Name = LightMeasurementInfrastructure.QueueName,
-                    Durable = LightMeasurementInfrastructure.QueueDurable,
-                    AutoDelete = LightMeasurementInfrastructure.QueueAutoDelete,
+                    Name = LightMeasurementInfrastructure.QueueName, // Queue name from shared infrastructure
+                    Durable = LightMeasurementInfrastructure.QueueDurable, // Queue durability
+                    AutoDelete = LightMeasurementInfrastructure.QueueAutoDelete, // Queue auto-delete flag
                 },
                 Exchange = new AmqpExchangeDefinition
                 {
-                    Name = LightMeasurementInfrastructure.ExchangeName,
-                    Type = AmqpExchangeType.Direct,
-                    Durable = LightMeasurementInfrastructure.ExchangeDurable,
-                    AutoDelete = LightMeasurementInfrastructure.ExchangeAutoDelete,
+                    Name = LightMeasurementInfrastructure.ExchangeName, // Exchange name from shared infrastructure
+                    Type = AmqpExchangeType.Direct, // Direct exchange type
+                    Durable = LightMeasurementInfrastructure.ExchangeDurable, // Exchange durability
+                    AutoDelete = LightMeasurementInfrastructure.ExchangeAutoDelete, // Exchange auto-delete flag
                 },
-                BindingVersion = "0.3.0"
+                BindingVersion = "0.3.0" // AMQP binding version
             });
 
+            // Define AMQP operation bindings (for documentation only)
             var amqpOperationBindings = new OperationBindingDefinitionCollection();
             amqpOperationBindings.Add(new AmqpOperationBindingDefinition
             {
@@ -95,36 +108,68 @@ builder.Services.AddAsyncApiGeneration(options =>
             });
 
             asyncApi
+                // Set terms of service and server configuration
                 .WithTermsOfService(new Uri("https://www.websitepolicies.com/blog/sample-terms-service-template"))
                 .WithServer("mosquitto", server => server
-                    .WithHost("amqp://localhost:5672")
-                    .WithProtocol(AsyncApiProtocol.Amqp)
+                    .WithHost("amqp://localhost:5672") // RabbitMQ server host
+                    .WithProtocol(AsyncApiProtocol.Amqp) // Use AMQP protocol
                     .WithDescription("RabbitMQ server for light measurement events")
-                    .WithSecurityRequirement(security => security.Use("#/components/securitySchemes/oauth2"))
+                    .WithSecurityRequirement(security => security.Use("#/components/securitySchemes/oauth2")) // Require OAuth2 security at the server level
                 )
+                // Register channel and operation bindings for AMQP
                 .WithChannelBindingsComponent("amqp", amqpChannelBindings)
                 .WithOperationBindingsComponent("amqp", amqpOperationBindings)
+                // Register OAuth2 security scheme in components (for documentation and UI)
                 .WithSecuritySchemeComponent("oauth2", scheme => scheme
                     .WithType(SecuritySchemeType.OAuth2)
                     .WithDescription("OAuth2 authentication for the API")
                     .WithAuthorizationScheme("Bearer")
                     .WithOAuthFlows(oauth => oauth
                         .WithClientCredentialsFlow(flow => flow
-                            .WithAuthorizationUrl(new Uri("https://your-auth-server.com/token"))
-                            .WithScope("api:read", "Read access to API")
-                            .WithScope("api:write", "Write access to API")
+                            .WithAuthorizationUrl(new Uri("https://your-auth-server.com/token")) // Auth server URL
+                            .WithScope("api:read", "Read access to API") // Read scope
+                            .WithScope("api:write", "Write access to API") // Write scope
+                        )
+                    )
+                )
+                // Add operation-level security requirements with explicit channel (for documentation only; not emitted in spec due to library limitation)
+                .WithOperation("publishLightMeasured", op => op
+                    .WithChannel("light.measured") // Channel name for publishing
+                    .WithSecurity(s => s
+                        .WithType(SecuritySchemeType.OAuth2)
+                        .WithDescription("OAuth2 required: Only authorized clients can publish light measured events.")
+                        .WithAuthorizationScheme("Bearer")
+                        .WithOAuthFlows(oauth => oauth
+                            .WithClientCredentialsFlow(flow => flow
+                                .WithAuthorizationUrl(new Uri("https://your-auth-server.com/token"))
+                                .WithScope("api:read", "Read access to API")
+                            )
+                        )
+                    )
+                )
+                .WithOperation("consumeLightMeasured", op => op
+                    .WithChannel("light.measured") // Channel name for consuming
+                    .WithSecurity(s => s
+                        .WithType(SecuritySchemeType.OAuth2)
+                        .WithDescription("OAuth2 required: Only authorized clients can consume light measurement events.")
+                        .WithAuthorizationScheme("Bearer")
+                        .WithOAuthFlows(oauth => oauth
+                            .WithClientCredentialsFlow(flow => flow
+                                .WithAuthorizationUrl(new Uri("https://your-auth-server.com/token"))
+                                .WithScope("api:write", "Write access to API")
+                            )
                         )
                     )
                 );
         })
-        
 );
 
+// Build and configure the HTTP request pipeline
 var app = builder.Build();
-app.UseStaticFiles();
-app.UseRouting();
-app.UseAuthorization();
-app.MapAsyncApiDocuments();
-app.MapRazorPages();
+app.UseStaticFiles(); // Serve static files (e.g., AsyncAPI UI, CSS, JS)
+app.UseRouting(); // Enable endpoint routing
+app.UseAuthorization(); // Enable authorization middleware
+app.MapAsyncApiDocuments(); // Map AsyncAPI document endpoints
+app.MapRazorPages(); // Map Razor Pages endpoints
 
-app.Run();
+app.Run(); // Start the application
