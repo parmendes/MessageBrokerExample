@@ -34,7 +34,7 @@ builder.Services.AddTransient<LightMeasurementApi>(); // Registers the root API 
 // Register AsyncAPI document generation using service markup (code-first)
 builder.Services.AddAsyncApiGeneration(options =>
     options.WithMarkupType<LightMeasurementApi>() // Use LightMeasurementApi as the root for code-first AsyncAPI generation
-        // Configure AsyncAPI v2 document
+                                                  // Configure AsyncAPI v2 document
         .UseDefaultV2DocumentConfiguration(asyncApi =>
         {
             // Define AMQP channel bindings (for documentation only)
@@ -67,12 +67,16 @@ builder.Services.AddAsyncApiGeneration(options =>
                 .WithSecurityScheme("oauth2", scheme => scheme
                     .WithType(SecuritySchemeType.OAuth2)
                     .WithDescription("OAuth2 authentication for the API")
-                    .WithAuthorizationScheme("Bearer")
+                    .WithParameterName("oauth2") // Parameter name for OAuth2 token
                     .WithOAuthFlows(oauth => oauth
-                        .WithClientCredentialsFlow(flow => flow
+                        .WithImplicitFlow(flow => flow
                             .WithAuthorizationUrl(new Uri("https://your-auth-server.com/token")) // Auth server URL
-                            .WithScope("api:read", "Read access to API") // Read scope
-                            .WithScope("api:write", "Write access to API") // Write scope
+                            .WithTokenUrl(new Uri("https://your-auth-server.com/token")) // Token URL for OAuth2
+                            .WithScopes(new Dictionary<string, string>
+                            {
+                                { "read:lights", "Read street lights" },
+                                { "write:lights", "Write street lights" }
+                            })
                         )
                     )
                 );
@@ -80,33 +84,6 @@ builder.Services.AddAsyncApiGeneration(options =>
         // Configure AsyncAPI v3 document
         .UseDefaultV3DocumentConfiguration(asyncApi =>
         {
-            // Define AMQP channel bindings with queue and exchange details (for documentation only)
-            var amqpChannelBindings = new ChannelBindingDefinitionCollection();
-            amqpChannelBindings.Add(new AmqpChannelBindingDefinition
-            {
-                Queue = new AmqpQueueDefinition
-                {
-                    Name = LightMeasurementInfrastructure.QueueName, // Queue name from shared infrastructure
-                    Durable = LightMeasurementInfrastructure.QueueDurable, // Queue durability
-                    AutoDelete = LightMeasurementInfrastructure.QueueAutoDelete, // Queue auto-delete flag
-                },
-                Exchange = new AmqpExchangeDefinition
-                {
-                    Name = LightMeasurementInfrastructure.ExchangeName, // Exchange name from shared infrastructure
-                    Type = AmqpExchangeType.Direct, // Direct exchange type
-                    Durable = LightMeasurementInfrastructure.ExchangeDurable, // Exchange durability
-                    AutoDelete = LightMeasurementInfrastructure.ExchangeAutoDelete, // Exchange auto-delete flag
-                },
-                BindingVersion = "0.3.0" // AMQP binding version
-            });
-
-            // Define AMQP operation bindings (for documentation only)
-            var amqpOperationBindings = new OperationBindingDefinitionCollection();
-            amqpOperationBindings.Add(new AmqpOperationBindingDefinition
-            {
-                BindingVersion = "0.3.0"
-            });
-
             asyncApi
                 // Set terms of service and server configuration
                 .WithTermsOfService(new Uri("https://www.websitepolicies.com/blog/sample-terms-service-template"))
@@ -114,55 +91,46 @@ builder.Services.AddAsyncApiGeneration(options =>
                     .WithHost("amqp://localhost:5672") // RabbitMQ server host
                     .WithProtocol(AsyncApiProtocol.Amqp) // Use AMQP protocol
                     .WithDescription("RabbitMQ server for light measurement events")
-                    .WithSecurityRequirement(security => security.Use("#/components/securitySchemes/oauth2")) // Require OAuth2 security at the server level
+                    .WithSecurityRequirement(security => security.Use("#/components/securitySchemes/OAuth2")) // Require OAuth2 security at the server level
                 )
                 // Register channel and operation bindings for AMQP
-                .WithChannelBindingsComponent("amqp", amqpChannelBindings)
-                .WithOperationBindingsComponent("amqp", amqpOperationBindings)
+                .WithChannelBindingsComponent("amqp", new ChannelBindingDefinitionCollection())
+                .WithOperationBindingsComponent("http", bindings => bindings
+                    .WithBinding(new HttpOperationBindingDefinition()
+                    {
+                        Method = Neuroglia.AsyncApi.Bindings.Http.HttpMethod.POST,
+                        Type = HttpBindingOperationType.Request,
+                        BindingVersion = "0.3.0",
+                    })
+                )
+                .WithOperationBindingsComponent("amqp", new OperationBindingDefinitionCollection())
                 // Register OAuth2 security scheme in components (for documentation and UI)
-                .WithSecuritySchemeComponent("oauth2", scheme => scheme
+                .WithSecuritySchemeComponent("OAuth2", scheme => scheme
                     .WithType(SecuritySchemeType.OAuth2)
-                    .WithDescription("OAuth2 authentication for the API")
-                    .WithAuthorizationScheme("Bearer")
                     .WithOAuthFlows(oauth => oauth
-                        .WithClientCredentialsFlow(flow => flow
+                        .WithImplicitFlow(flow => flow
                             .WithAuthorizationUrl(new Uri("https://your-auth-server.com/token")) // Auth server URL
-                            .WithScope("api:read", "Read access to API") // Read scope
-                            .WithScope("api:write", "Write access to API") // Write scope
+                            .WithScopes(new Dictionary<string, string>
+                            {
+                                { "read:lights", "Read street lights" },
+                                { "write:lights", "Write street lights" }
+                            })
                         )
                     )
                 )
-                // Add operation-level security requirements with explicit channel (for documentation only; not emitted in spec due to library limitation)
+                .WithSecuritySchemeComponent("X509", scheme => scheme
+                    .WithType(SecuritySchemeType.X509)
+                    .WithDescription("X.509 certificate authentication for secure communication")
+                )
                 .WithOperation("publishLightMeasured", op => op
                     .WithChannel("light.measured") // Channel name for publishing
-                    .WithSecurity(s => s
-                        .WithType(SecuritySchemeType.OAuth2)
-                        .WithDescription("OAuth2 required: Only authorized clients can publish light measured events.")
-                        .WithAuthorizationScheme("Bearer")
-                        .WithOAuthFlows(oauth => oauth
-                            .WithClientCredentialsFlow(flow => flow
-                                .WithAuthorizationUrl(new Uri("https://your-auth-server.com/token"))
-                                .WithScope("api:read", "Read access to API")
-                            )
-                        )
-                    )
+                    .WithSecurity(security => security.Use("#/components/securitySchemes/X509"))
                 )
-                .WithOperation("consumeLightMeasured", op => op
-                    .WithChannel("light.measured") // Channel name for consuming
-                    .WithSecurity(s => s
-                        .WithType(SecuritySchemeType.OAuth2)
-                        .WithDescription("OAuth2 required: Only authorized clients can consume light measurement events.")
-                        .WithAuthorizationScheme("Bearer")
-                        .WithOAuthFlows(oauth => oauth
-                            .WithClientCredentialsFlow(flow => flow
-                                .WithAuthorizationUrl(new Uri("https://your-auth-server.com/token"))
-                                .WithScope("api:write", "Write access to API")
-                            )
-                        )
-                    )
-                );
+                ;
         })
 );
+
+builder.Services.AddHostedService<AsyncApiYamlExporter>();
 
 // Build and configure the HTTP request pipeline
 var app = builder.Build();

@@ -1,0 +1,171 @@
+asyncapi: '2.6.0'
+info:
+  title: Light Measurement API
+  version: 1.0.0
+  description: Unified API for light measurement events.
+  termsOfService: https://www.websitepolicies.com/blog/sample-terms-service-template
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+servers:
+  mosquitto:
+    url: amqp://localhost:5672
+    protocol: amqp
+    protocolVersion: latest
+    description: RabbitMQ server for light measurement events
+    security:
+      oauth2: {}
+channels:
+  light.measured:
+    subscribe:
+      operationId: ConsumeLightMeasured
+      message:
+        payload:
+          Keywords:
+          - Type: Object
+          - Properties:
+              id:
+                Keywords:
+                - Type: String
+                - Value: &o0
+                    Key: uuid
+                - Value: Gets/sets the id of the measured light
+                BaseUri: https://json-everything.net/873b0bff31
+              type:
+                Keywords:
+                - Values:
+                  - LED
+                  - HPS
+                - Value: Gets/sets the type of the measured light
+                BaseUri: https://json-everything.net/cb8a42f5d1
+              lumens:
+                Keywords:
+                - Type: Integer
+                - Value: Gets/sets the specified light's lumens measurement
+                BaseUri: https://json-everything.net/b990a68fa4
+              sentAt:
+                Keywords:
+                - Type: String
+                - Value: &o1
+                    Key: date-time
+                - Value: Gets/sets the date and time at which the event has been created
+                BaseUri: https://json-everything.net/161d14edaa
+              metadata:
+                Keywords:
+                - Type: Object
+                - Schema:
+                    Keywords:
+                    - Type: String
+                    BaseUri: https://json-everything.net/8704c44f69
+                - Value: Gets/sets the event's metadata
+                BaseUri: https://json-everything.net/84deb65172
+          BaseUri: https://json-everything.net/73bff7ad94
+        name: LightMeasured
+        title: Light Measured
+        summary: A message used to measure light
+        description: A message used to measure light
+        tags:
+        - name: light
+          description: A tag for light-related messages
+        - name: measurement
+          description: A tag for measurement-related messages
+        examples:
+          Minimal: {}
+          Extended:
+            id: 00000000-0000-0000-0000-000000000000
+            type: LED
+            lumens: 19
+            sentAt: 2025-05-29T15:51:28.7604514+01:00
+            metadata:
+              property1: string
+              property2: string
+              property3: string
+      summary: Consumes a light measured event from RabbitMQ.
+      description: Receives notifications about environmental lighting conditions for a particular streetlight.
+    publish:
+      operationId: PublishLightMeasured
+      message:
+        payload:
+          Keywords:
+          - Type: Object
+          - Properties:
+              id:
+                Keywords:
+                - Type: String
+                - Value: *o0
+                - Value: Gets/sets the id of the measured light
+                BaseUri: https://json-everything.net/018fe54535
+              type:
+                Keywords:
+                - Values:
+                  - LED
+                  - HPS
+                - Value: Gets/sets the type of the measured light
+                BaseUri: https://json-everything.net/b14f6f0a84
+              lumens:
+                Keywords:
+                - Type: Integer
+                - Value: Gets/sets the specified light's lumens measurement
+                BaseUri: https://json-everything.net/5fb394e00a
+              sentAt:
+                Keywords:
+                - Type: String
+                - Value: *o1
+                - Value: Gets/sets the date and time at which the event has been created
+                BaseUri: https://json-everything.net/47ce462910
+              metadata:
+                Keywords:
+                - Type: Object
+                - Schema:
+                    Keywords:
+                    - Type: String
+                    BaseUri: https://json-everything.net/75de59e61f
+                - Value: Gets/sets the event's metadata
+                BaseUri: https://json-everything.net/b79ab64e5a
+          BaseUri: https://json-everything.net/79f534ba67
+        name: LightMeasured
+        title: Light Measured
+        summary: A message used to measure light
+        description: A message used to measure light
+        tags:
+        - name: light
+          description: A tag for light-related messages
+        - name: measurement
+          description: A tag for measurement-related messages
+        examples:
+          Minimal: {}
+          Extended:
+            id: 00000000-0000-0000-0000-000000000000
+            type: LED
+            lumens: 10
+            sentAt: 2025-05-29T15:51:28.7472392+01:00
+            metadata:
+              property1: string
+              property2: string
+              property3: string
+      summary: Publishes a light measured event to RabbitMQ.
+      description: Notifies remote consumers about environmental lighting conditions for a particular streetlight.
+components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      name: oauth2
+      description: OAuth2 authentication for the API
+      flows:
+        implicit:
+          authorizationUrl: https://your-auth-server.com/token
+          tokenUrl: https://your-auth-server.com/token
+          scopes:
+            read:lights: Read street lights
+            write:lights: Write street lights
+  channelBindings:
+    amqp:
+      amqp:
+        bindingVersion: latest
+  operationBindings:
+    amqp:
+      amqp:
+        cc:
+        - light.measured
+        deliveryMode: persistent
+        bindingVersion: latest

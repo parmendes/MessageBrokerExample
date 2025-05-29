@@ -18,7 +18,7 @@ namespace StreetLightsApi.Services;
     LicenseUrl = "https://www.apache.org/licenses/LICENSE-2.0"
 )]
 [Neuroglia.AsyncApi.v3.AsyncApi(
-    "Light Measurement API",
+    "Light Measurement API V3",
     "1.0.0",
     Description = "Unified API for light measurement events.",
     LicenseName = "Apache 2.0",
@@ -33,7 +33,7 @@ namespace StreetLightsApi.Services;
     Description = "This channel is used to exchange messages about lightning measurements.",
     Bindings = "#/components/channelBindings/amqp" // The binding for the channel
     )]
-[HttpServerBinding("http")] // The HTTP server binding for the channel
+[HttpServerBinding("httpServerBinding")] // The HTTP server binding for the channel
 [Neuroglia.AsyncApi.v2.Tag("light", "A tag for light-related operations")] // A tag for light-related operations
 [Neuroglia.AsyncApi.v2.Tag("measurement", "A tag for measurement-related operations")] // A tag for measurement-related operations
 [Neuroglia.AsyncApi.v3.Tag(Name = "light", Description = "A tag for light-related operations")] // A tag for light-related operations
@@ -74,7 +74,7 @@ public class LightMeasurementApi
         "#/channels/light.measured",
         Description = "Publishes a light measured event to RabbitMQ.",
         Bindings = "#/components/operationBindings/amqp"
-        // Security is set via the builder API in Program.cs
+    // Security is set via the builder API in Program.cs
     )]
     [Neuroglia.AsyncApi.v2.Channel(LightMeasuredChannel.ChannelName)]
     [Neuroglia.AsyncApi.v3.Tag(Name = "measurement")]
@@ -98,8 +98,8 @@ public class LightMeasurementApi
         V3OperationAction.Receive,
         "#/channels/light.measured",
         Description = "Consumes a light measured event from RabbitMQ.",
-        Bindings = "#/components/operationBindings/amqp"
-        // Security is set via the builder API in Program.cs
+        Bindings = "#/components/operationBindings/http"
+    // Security is set via the builder API in Program.cs
     )]
     [Neuroglia.AsyncApi.v2.Channel(LightMeasuredChannel.ChannelName)]
     [Neuroglia.AsyncApi.v3.Tag(Name = "measurement")]
