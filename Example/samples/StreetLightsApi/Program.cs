@@ -34,7 +34,7 @@ builder.Services.AddTransient<LightMeasurementApi>(); // Registers the root API 
 // Register AsyncAPI document generation using service markup (code-first)
 builder.Services.AddAsyncApiGeneration(options =>
     options.WithMarkupType<LightMeasurementApi>() // Use LightMeasurementApi as the root for code-first AsyncAPI generation
-                                                  // Configure AsyncAPI v2 document
+        // Configure AsyncAPI v2 document
         .UseDefaultV2DocumentConfiguration(asyncApi =>
         {
             // Define AMQP channel bindings (for documentation only)
@@ -56,7 +56,7 @@ builder.Services.AddAsyncApiGeneration(options =>
                 .WithTermsOfService(new Uri("https://www.websitepolicies.com/blog/sample-terms-service-template"))
                 .WithServer("mosquitto", server => server
                     .WithUrl(new Uri("amqp://localhost:5672")) // RabbitMQ server URL
-                    .WithProtocol(Neuroglia.AsyncApi.AsyncApiProtocol.Amqp) // Use AMQP protocol
+                    .WithProtocol(AsyncApiProtocol.Amqp) // Use AMQP protocol
                     .WithDescription("RabbitMQ server for light measurement events")
                     .WithSecurityRequirement("oauth2") // Require OAuth2 security at the server level
                 )
