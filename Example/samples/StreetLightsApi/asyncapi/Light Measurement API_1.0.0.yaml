@@ -30,36 +30,36 @@ channels:
                 - Value: &o0
                     Key: uuid
                 - Value: Gets/sets the id of the measured light
-                BaseUri: https://json-everything.net/873b0bff31
+                BaseUri: https://json-everything.net/8c90a7fc26
               type:
                 Keywords:
                 - Values:
                   - LED
                   - HPS
                 - Value: Gets/sets the type of the measured light
-                BaseUri: https://json-everything.net/cb8a42f5d1
+                BaseUri: https://json-everything.net/3c03dd7dcf
               lumens:
                 Keywords:
                 - Type: Integer
                 - Value: Gets/sets the specified light's lumens measurement
-                BaseUri: https://json-everything.net/b990a68fa4
+                BaseUri: https://json-everything.net/fbe32177e0
               sentAt:
                 Keywords:
                 - Type: String
                 - Value: &o1
                     Key: date-time
                 - Value: Gets/sets the date and time at which the event has been created
-                BaseUri: https://json-everything.net/161d14edaa
+                BaseUri: https://json-everything.net/f98d6d60e6
               metadata:
                 Keywords:
                 - Type: Object
                 - Schema:
                     Keywords:
                     - Type: String
-                    BaseUri: https://json-everything.net/8704c44f69
+                    BaseUri: https://json-everything.net/b552388b05
                 - Value: Gets/sets the event's metadata
-                BaseUri: https://json-everything.net/84deb65172
-          BaseUri: https://json-everything.net/73bff7ad94
+                BaseUri: https://json-everything.net/ba3ef97e8e
+          BaseUri: https://json-everything.net/f00aa38fba
         name: LightMeasured
         title: Light Measured
         summary: A message used to measure light
@@ -74,8 +74,8 @@ channels:
           Extended:
             id: 00000000-0000-0000-0000-000000000000
             type: LED
-            lumens: 19
-            sentAt: 2025-05-29T15:51:28.7604514+01:00
+            lumens: 43
+            sentAt: 2025-07-09T15:43:03.5841256+01:00
             metadata:
               property1: string
               property2: string
@@ -94,35 +94,35 @@ channels:
                 - Type: String
                 - Value: *o0
                 - Value: Gets/sets the id of the measured light
-                BaseUri: https://json-everything.net/018fe54535
+                BaseUri: https://json-everything.net/de3fc6b063
               type:
                 Keywords:
                 - Values:
                   - LED
                   - HPS
                 - Value: Gets/sets the type of the measured light
-                BaseUri: https://json-everything.net/b14f6f0a84
+                BaseUri: https://json-everything.net/29c13daaee
               lumens:
                 Keywords:
                 - Type: Integer
                 - Value: Gets/sets the specified light's lumens measurement
-                BaseUri: https://json-everything.net/5fb394e00a
+                BaseUri: https://json-everything.net/d1c6e0a638
               sentAt:
                 Keywords:
                 - Type: String
                 - Value: *o1
                 - Value: Gets/sets the date and time at which the event has been created
-                BaseUri: https://json-everything.net/47ce462910
+                BaseUri: https://json-everything.net/dd120bcd41
               metadata:
                 Keywords:
                 - Type: Object
                 - Schema:
                     Keywords:
                     - Type: String
-                    BaseUri: https://json-everything.net/75de59e61f
+                    BaseUri: https://json-everything.net/2bcefe3351
                 - Value: Gets/sets the event's metadata
-                BaseUri: https://json-everything.net/b79ab64e5a
-          BaseUri: https://json-everything.net/79f534ba67
+                BaseUri: https://json-everything.net/bc839fedf7
+          BaseUri: https://json-everything.net/2e04dbf4da
         name: LightMeasured
         title: Light Measured
         summary: A message used to measure light
@@ -137,8 +137,8 @@ channels:
           Extended:
             id: 00000000-0000-0000-0000-000000000000
             type: LED
-            lumens: 10
-            sentAt: 2025-05-29T15:51:28.7472392+01:00
+            lumens: 54
+            sentAt: 2025-07-09T15:43:03.5614229+01:00
             metadata:
               property1: string
               property2: string

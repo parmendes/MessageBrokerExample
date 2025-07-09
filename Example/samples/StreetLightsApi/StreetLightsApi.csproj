@@ -21,10 +21,8 @@
 	  <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 	  <PackageReference Include="RabbitMQ.Client" Version="7.1.2" />
 	  <PackageReference Include="YamlDotNet" Version="16.3.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\Neuroglia.AsyncApi.AspNetCore.UI\Neuroglia.AsyncApi.AspNetCore.UI.csproj" />
+    <PackageReference Include="Neuroglia.AsyncApi.AspNetCore" Version="3.0.6" />
+    <PackageReference Include="Neuroglia.AsyncApi.AspNetCore.UI" Version="3.0.6" />
   </ItemGroup>
 
 </Project>

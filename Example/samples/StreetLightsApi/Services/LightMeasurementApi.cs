@@ -36,8 +36,8 @@ namespace StreetLightsApi.Services;
 [HttpServerBinding("httpServerBinding")] // The HTTP server binding for the channel
 [Neuroglia.AsyncApi.v2.Tag("light", "A tag for light-related operations")] // A tag for light-related operations
 [Neuroglia.AsyncApi.v2.Tag("measurement", "A tag for measurement-related operations")] // A tag for measurement-related operations
-[Neuroglia.AsyncApi.v3.Tag(Name = "light", Description = "A tag for light-related operations")] // A tag for light-related operations
-[Neuroglia.AsyncApi.v3.Tag(Name = "measurement", Description = "A tag for measurement-related operations")] // A tag for measurement-related operations
+[Tag(Name = "light", Description = "A tag for light-related operations")] // A tag for light-related operations
+[Tag(Name = "measurement", Description = "A tag for measurement-related operations")] // A tag for measurement-related operations
 public class LightMeasurementApi
 {
     // Reference to the producer responsible for publishing events
@@ -77,7 +77,7 @@ public class LightMeasurementApi
     // Security is set via the builder API in Program.cs
     )]
     [Neuroglia.AsyncApi.v2.Channel(LightMeasuredChannel.ChannelName)]
-    [Neuroglia.AsyncApi.v3.Tag(Name = "measurement")]
+    [Tag(Name = "measurement")]
     [Neuroglia.AsyncApi.v3.Tag(Name = "light")]
     public async Task PublishLightMeasuredAsync(LightMeasuredEvent evt)
         => await _producer.PublishLightMeasuredAsync(evt); // Delegate to producer
